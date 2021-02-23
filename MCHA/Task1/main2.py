@@ -41,7 +41,7 @@ print()
 for row in range(n - 1):
     ind_max = row
     for i in range(row + 1, n):
-        if A[i][row] > A[ind_max][row]:
+        if abs(A[i][row]) > abs(A[ind_max][row]):
             ind_max = i
     (A[row], A[ind_max]) = (A[ind_max], A[row])
     b[row], b[ind_max] = b[ind_max], b[row]
