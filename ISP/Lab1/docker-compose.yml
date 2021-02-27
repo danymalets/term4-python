@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  web-server:
+    build: WebServer/
+    restart: always
+    ports:
+      - 8000:8000
+    volumes:
+      - ./files:/usr/src/app/files
+
+
