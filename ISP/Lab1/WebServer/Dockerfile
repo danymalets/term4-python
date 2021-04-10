@@ -4,10 +4,10 @@ RUN mkdir -p /usr/src/app/
 
 WORKDIR /usr/src/app/
 
+EXPOSE 8000
+
 COPY . /usr/src/app/
 
-RUN pip install --no-cache-dir -r requirements.txt
-
-EXPOSE 8000
+RUN pip install -r requirements.txt
 
 CMD ["python", "main.py"]
