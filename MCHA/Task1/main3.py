@@ -24,6 +24,8 @@ k = 5
 
 A = C * k + D
 
+A[4][0] = 111.81
+
 b = np.array([4.2, 4.2, 4.2, 4.2, 4.2], dtype=np.float64)
 
 x = np.empty(n, dtype=np.float64)
@@ -43,7 +45,7 @@ for row in range(n - 1):
     for i in range(row + 1, n):
         if max(A[i], key=abs) > max(A[ind_max], key=abs):
             ind_max = i
-    (A[row], A[ind_max]) = (A[ind_max], A[row])
+    (A[row], A[ind_max]) = (A[ind_max], A[row]).copy()
     b[row], b[ind_max] = b[ind_max], b[row]
     for i in range(row + 1, n):
         q = A[i][row] / A[row][row]

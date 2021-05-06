@@ -24,6 +24,8 @@ k = 5
 
 A = C * k + D
 
+A[4][0] = 111.81
+
 b = np.array([4.2, 4.2, 4.2, 4.2, 4.2], dtype=np.float64)
 
 x = np.empty(n, dtype=np.float64)

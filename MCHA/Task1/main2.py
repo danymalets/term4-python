@@ -26,6 +26,8 @@ A = C * k + D
 
 b = np.array([4.2, 4.2, 4.2, 4.2, 4.2], dtype=np.float64)
 
+A[4][0] = 111.81
+
 x = np.empty(n, dtype=np.float64)
 
 for i in range(n):
@@ -44,6 +46,7 @@ for row in range(n - 1):
         if abs(A[i][row]) > abs(A[ind_max][row]):
             ind_max = i
     (A[row], A[ind_max]) = (A[ind_max], A[row])
+
     b[row], b[ind_max] = b[ind_max], b[row]
     for i in range(row + 1, n):
         q = A[i][row] / A[row][row]
