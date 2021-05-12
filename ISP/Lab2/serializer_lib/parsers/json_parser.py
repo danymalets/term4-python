@@ -1,10 +1,11 @@
 import re
+import json
 
 FLOAT_REGEX = "-?\d+\.\d+"
 INT_REGEX = "\d+"
 STR_REGEX = "\"(.*)\""
-DICT_REGEX = "\{(.*)\}"
-LIST_REGEX = "\[(.*)\]"
+DICT_REGEX = "\{([\s\S]*)\}"
+LIST_REGEX = "\[([\s\S]*)\]"
 
 
 def to_json(obj):
@@ -21,10 +22,11 @@ def to_json(obj):
     elif isinstance(obj, dict):
         return "{" + ",".join(f"\"{key}\":{to_json(val)}" for key, val in obj.items()) + "}"
     else:
-        raise ValueError("Wrong type")
+        raise ValueError(f"Wrong type {type(obj)}")
 
 
 def from_json(s):
+    s = s.strip("\n ")
     if s == "null":
         return None
     elif s == "false":
@@ -39,14 +41,14 @@ def from_json(s):
         a = {}
         for ss in split(re.fullmatch(DICT_REGEX, s).group(1), ','):
             key, value = tuple(split(ss, ':'))
-            a[re.fullmatch(STR_REGEX, key).group(1)] = from_json(value)
+            a[from_json(key)] = from_json(value)
         return a
     elif re.fullmatch(LIST_REGEX, s):
         return [from_json(ss) for ss in split(re.fullmatch(LIST_REGEX, s).group(1), ',')]
     elif re.fullmatch(STR_REGEX, s):
         return re.fullmatch(STR_REGEX, s).group(1).replace('\\n', '\n').replace('\\\\', '\\').replace('\\/', '/')
     else:
-        raise ValueError(f"Wrong string {s}")
+        raise ValueError(f"Wrong string \"{s}\"")
 
 
 def split(s, mark):
@@ -54,8 +56,9 @@ def split(s, mark):
     depth = 0
     tmp = ""
     in_str = False
+    marks = 0
     for i in range(len(s)):
-        if s[i] == '\"' and (i == 0 or s[i-1] != '\"'):
+        if s[i] == '\"' and (i == 0 or s[i - 1] != '\"'):
             in_str = not in_str
 
         if not in_str:
@@ -67,8 +70,10 @@ def split(s, mark):
         if s[i] == mark and depth == 0 and not in_str:
             a.append(tmp)
             tmp = ""
+            marks += 1
         else:
             tmp += s[i]
-    a.append(tmp)
-    return a
 
+    if tmp.strip("\n ") != "":
+        a.append(tmp)
+    return a
