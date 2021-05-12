@@ -11,7 +11,7 @@ class JSONSerializer(Serializer):
         return deserialize(from_json(s))
 
     def dump(self, obj, fp):
-        fp.dumps(self.loads())
+        fp.write(self.dumps(obj))
 
     def load(self, fp):
         return self.loads(fp.read())
