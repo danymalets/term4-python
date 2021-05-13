@@ -40,8 +40,6 @@ def serialize(obj):
     result = {}
     tp = type(obj)
     tp_name = tp.__name__
-    #print(tp_name + " - " + re.search("\'([\w\W]+)\'", str(tp)).group(1))
-
     if isinstance(obj, (int, float, complex, bool, str)) or obj is None:
         return obj
     elif tp == dict:
@@ -59,9 +57,11 @@ def serialize(obj):
         result[TYPE] = tp_name
         result[VALUE] = list(obj)
     elif tp == type:
-        print("GGG")
         result[TYPE] = tp_name
         result[VALUE] = serialize_class(obj)
+    elif hasattr(obj, "__dict__"):
+        result[TYPE] = "class_object"
+        result[VALUE] = serialize_class_obj(obj)
     else:
         result[TYPE] = tp_name
         result[VALUE] = serialize_inst(obj)
@@ -92,6 +92,17 @@ def serialize_function(f: object):
     return result
 
 
+def is_instance(obj):
+    if not hasattr(obj, "__dict__"):
+        return False
+    if inspect.isroutine(obj):
+        return False
+    if inspect.isclass(obj):
+        return False
+    else:
+        return True
+
+
 def serialize_inst(inst: object):
     result = {}
     attrs = inspect.getmembers(inst)
@@ -119,6 +130,8 @@ def deserialize(obj):
                 return bytes(obj[VALUE])
             elif obj[TYPE] == "type":
                 return deserialize_class(obj[VALUE])
+            elif obj[TYPE] == "class_object":
+                return deserialize_class_obj(obj[VALUE])
             return obj[VALUE]
         for name, o in obj.items():
             result[name] = deserialize(o)
@@ -173,3 +186,16 @@ def serialize_class(cls):
 
 def deserialize_class(cls):
     return type(deserialize(cls["**name**"]), deserialize(cls["**bases**"]), deserialize(cls["**content**"]))
+
+
+def serialize_class_obj(obj):
+    return {
+        "**class**": serialize_class(obj.__class__),
+        "**vars**": serialize(obj.__dict__)
+    }
+
+
+def deserialize_class_obj(obj):
+    res = deserialize_class(obj["**class**"])()
+    res.__dict__ = deserialize(obj["**vars**"])
+    return res
