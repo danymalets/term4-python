@@ -1,9 +1,8 @@
 import inspect
 from types import FunctionType, CodeType
-import re
 
-TYPE = "__type__"
-VALUE = "__value__"
+TYPE = "**type**"
+VALUE = "**value**"
 
 CODE_FIELD_NAME = "__code__"
 GLOBAL_FIELD_NAME = "__globals__"
@@ -59,6 +58,10 @@ def serialize(obj):
     elif tp == bytes:
         result[TYPE] = tp_name
         result[VALUE] = list(obj)
+    elif tp == type:
+        print("GGG")
+        result[TYPE] = tp_name
+        result[VALUE] = serialize_class(obj)
     else:
         result[TYPE] = tp_name
         result[VALUE] = serialize_inst(obj)
@@ -114,6 +117,8 @@ def deserialize(obj):
                 return deserialize_function(obj[VALUE])
             elif obj[TYPE] == "bytes":
                 return bytes(obj[VALUE])
+            elif obj[TYPE] == "type":
+                return deserialize_class(obj[VALUE])
             return obj[VALUE]
         for name, o in obj.items():
             result[name] = deserialize(o)
@@ -156,3 +161,15 @@ def deserialize_function(f: dict):
         result_func.__getattribute__(GLOBAL_FIELD_NAME)[result_func.__name__] = result_func
     return result_func
 
+
+def serialize_class(cls):
+    bases = ()
+    for i in cls.__bases__:
+        if i.__name__ != "object":
+            bases += (serialize_class(i),)
+    args = serialize(dict(cls.__dict__))
+    return {"**name**": cls.__name__, "**bases**": serialize(bases), "**content**": args}
+
+
+def deserialize_class(cls):
+    return type(deserialize(cls["**name**"]), deserialize(cls["**bases**"]), deserialize(cls["**content**"]))
