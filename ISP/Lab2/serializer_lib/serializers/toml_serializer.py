@@ -1,20 +1,14 @@
 from .serializer import Serializer
 from serializer_lib.serialization.serialization import serialize, deserialize
-from serializer_lib.parsers.json_parser import to_json, from_json
+from serializer_lib.parsers.toml_parser import to_toml, from_toml
 
 
-import json
-
-
-class JSONSerializer(Serializer):
+class TOMLSerializer(Serializer):
     def dumps(self, obj):
-        return to_json(serialize(obj))
+        return to_toml(serialize(obj))
 
     def loads(self, s):
-        print("ans = " + s)
-        print("ans1 = " + str(from_json(s)))
-        print("ans2 = " + str(json.loads(s)))
-        return deserialize(from_json(s))
+        return deserialize(from_toml(s))
 
     def dump(self, obj, fp):
         fp.write(self.dumps(obj))
