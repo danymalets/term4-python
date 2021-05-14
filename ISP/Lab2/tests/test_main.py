@@ -1,19 +1,20 @@
 from serializer_lib.factory.factory import create_serializer
-from .test_funcs import *
+from .test_source import *
 
 
 JSON_DICT = "tests/test_dict.json"
+PICKLE_DICT = "tests/test_dict.pickle"
+YAML_DICT = "tests/test_dict.yaml"
+TOML_DICT = "tests/test_dict.toml"
 
 
 def test_json_dict():
     ser = create_serializer("json")
     a = {"a": 1, "b": 2, "c": (False, True, None, [12.32]), "d1": []}
 
-    with open(JSON_DICT, 'w') as fp:
-        ser.dump(a, fp)
+    ser.dump(a, JSON_DICT)
 
-    with open(JSON_DICT, 'r') as fp:
-        b = ser.load(fp)
+    b = ser.load(JSON_DICT)
 
     assert a == b
 
@@ -40,3 +41,71 @@ def test_json_strings():
     s = ser.dumps(a)
     b = ser.loads(s)
     assert a == b
+
+
+def test_pickle_dict():
+    ser = create_serializer("pickle")
+    a = {"a": 1, "b": 2, "c": 3}
+    bts = ser.dumps(a)
+    b = ser.loads(bts)
+    assert a == b
+
+
+def test_pickle_file():
+    ser = create_serializer("pickle")
+    a = {"a": 1, "b": 2, "c": 3}
+    ser.dump(a, PICKLE_DICT)
+    b = ser.load(PICKLE_DICT)
+    assert a == b
+
+
+def test_yaml():
+    ser = create_serializer("yaml")
+    a = {"a": 1, "b": 2.2, "c": False, "d": True, "e": None, "f1": [1, 2, 3]}
+    s = ser.dumps(a)
+
+    b = ser.loads(s)
+    assert a == b
+
+
+def test_toml():
+    ser = create_serializer("toml")
+    a = {"a": 1, "b": 2.2, "c": False, "d": True, "f1": [1, 2, 3]}
+    s = ser.dumps(a)
+    b = ser.loads(s)
+    assert a == b
+
+
+def test_yaml_file():
+    ser = create_serializer("yaml")
+    a = {"a": 1, "b": 2.2, "c": False, "d": True, "e": None, "f1": [1, 2, 3]}
+    ser.dump(a, YAML_DICT)
+    b = ser.load(YAML_DICT)
+    assert a == b
+
+
+def test_toml_file():
+    ser = create_serializer("toml")
+    a = {"a": 1, "b": 2.2, "c": False, "d": True, "f1": [1, 2, 3]}
+    ser.dump(a, TOML_DICT)
+    b = ser.load(TOML_DICT)
+    assert a == b
+
+
+def test_class():
+    ser = create_serializer("json")
+    s = ser.dumps(A)
+    B = ser.loads(s)
+    assert A.a == B.a
+
+
+def test_obj():
+    ser = create_serializer("json")
+    a = A()
+    s = ser.dumps(a)
+    b = ser.loads(s)
+    assert a.a == b.a
+    assert a.sqr(5) == b.sqr(5)
+
+
+

@@ -1,0 +1,11 @@
+a: 1
+b: 2.2
+c: false
+d: true
+e: null
+f1:
+  '**type**': list
+  '**value**':
+  - 1
+  - 2
+  - 3

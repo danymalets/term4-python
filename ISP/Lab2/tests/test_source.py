@@ -10,3 +10,12 @@ def fib(n):
 
 def func(x):
     return glob - x
+
+
+class A:
+    a = 123
+
+    def sqr(self, x):
+        return self.a + x * x
+
+
