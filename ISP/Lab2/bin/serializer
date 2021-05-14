@@ -1,0 +1,71 @@
+from serializer_lib.factory.factory import create_serializer
+import argparse
+import logging
+
+
+DEFAULT_FILE_NAME = "data"
+
+logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+
+arg_parser = argparse.ArgumentParser(description="Custom console serializer")
+
+arg_parser.add_argument(
+    "source_path",
+    type=str,
+    help='Provide path to file'
+)
+
+arg_parser.add_argument(
+    "target_ext",
+    type=str,
+    default='json',
+    help='Provide target format'
+)
+
+arg_parser.add_argument(
+    "-t",
+    "-p",
+    "--target_path",
+    type=str,
+    default=None,
+    help="Optional parameter to provide output file path"
+)
+
+
+def get_extension(path):
+    return path[path.rfind('.')+1:]
+
+
+def get_dir(path):
+    return path[:path.rfind('/')+1]
+
+
+def file_to_obj(file_path, format_name):
+    ser = create_serializer(format_name)
+    return ser.load(file_path)
+
+
+def obj_to_file(obj, file_path, format_name):
+    ser = create_serializer(format_name)
+    return ser.dump(obj, file_path)
+
+
+def make_conversion(source_path, target_format, target_path):
+    if target_path is None:
+        target_path = f"{get_dir(source_path)}{DEFAULT_FILE_NAME}.{target_format.lower()}"
+    source_format = get_extension(source_path)
+
+    logging.info(f"Starting of conversion.\n Converting {args.source_path} ({source_format}) "
+                 f"file to {args.target_path} ({target_format}) file")
+
+    obj = file_to_obj(source_path, source_format)
+    obj_to_file(obj, target_path, target_format)
+
+    logging.info("Ending of conversion.")
+
+
+args = arg_parser.parse_args()
+make_conversion(args.source_path, args.target_ext, args.target_path)
+
+
+
