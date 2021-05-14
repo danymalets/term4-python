@@ -10,10 +10,11 @@ class TOMLSerializer(Serializer):
     def loads(self, s):
         return deserialize(from_toml(s))
 
-    def dump(self, obj, fp):
-        fp.write(self.dumps(obj))
+    def dump(self, obj, file_path):
+        with open(file_path, 'w') as fp:
+            fp.write(self.dumps(obj))
 
-    def load(self, fp):
-        return self.loads(fp.read())
-
+    def load(self, file_path):
+        with open(file_path, 'r') as fp:
+            return self.loads(fp.read())
 

@@ -1,19 +1,21 @@
 from .serializer import Serializer
 from serializer_lib.serialization.serialization import serialize, deserialize
-from serializer_lib.parsers.pickle_parser import to_pickle, from_pickle
+import pickle as pc
 
 
 class PICKLESerializer(Serializer):
     def dumps(self, obj):
-        return to_pickle(serialize(obj))
+        return pc.dumps(serialize(obj))
 
     def loads(self, s):
-        return deserialize(from_pickle(s))
+        return deserialize(pc.loads(s))
 
-    def dump(self, obj, fp):
-        fp.write(self.dumps(obj))
+    def dump(self, obj, file_path):
+        with open(file_path, 'wb') as fp:
+            pc.dump(serialize(obj), fp)
 
-    def load(self, fp):
-        return self.loads(fp.read())
+    def load(self, file_path):
+        with open(file_path, 'rb') as fp:
+            return deserialize(pc.load(fp))
 
 
