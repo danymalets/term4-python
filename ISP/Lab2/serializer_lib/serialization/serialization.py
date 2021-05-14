@@ -92,17 +92,6 @@ def serialize_function(f: object):
     return result
 
 
-def is_instance(obj):
-    if not hasattr(obj, "__dict__"):
-        return False
-    if inspect.isroutine(obj):
-        return False
-    if inspect.isclass(obj):
-        return False
-    else:
-        return True
-
-
 def serialize_inst(inst: object):
     result = {}
     attrs = inspect.getmembers(inst)
@@ -135,16 +124,6 @@ def deserialize(obj):
             return obj[VALUE]
         for name, o in obj.items():
             result[name] = deserialize(o)
-    elif tp == list:
-        result = []
-        for o in obj:
-            result.append(deserialize(o))
-        return result
-    elif tp == tuple:
-        result = []
-        for o in obj:
-            result.append(deserialize(o))
-        return result
     else:
         return obj
     return result
