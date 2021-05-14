@@ -29,10 +29,8 @@ def from_json(s):
     s = s.strip("\n ")
     if s == "null":
         return None
-    elif s == "false":
-        return False
-    elif s == "true":
-        return True
+    elif s == "false" or s == "true":
+        return s[0] == 't'
     elif re.fullmatch(INT_REGEX, s):
         return int(s)
     elif re.fullmatch(FLOAT_REGEX, s):
@@ -58,7 +56,7 @@ def split(s, mark):
     in_str = False
     marks = 0
     for i in range(len(s)):
-        if s[i] == '\"' and (i == 0 or s[i - 1] != '\"'):
+        if s[i] == '\"' and (i == 0 or s[i - 1] != '\\'):
             in_str = not in_str
 
         if not in_str:
@@ -76,4 +74,5 @@ def split(s, mark):
 
     if tmp.strip("\n ") != "":
         a.append(tmp)
+
     return a
