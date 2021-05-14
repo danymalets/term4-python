@@ -6,7 +6,7 @@ from serializer_lib.serializers.pickle_serializer import PICKLESerializer
 
 
 def create_serializer(format_name):
-    format_name.lower()
+    format_name = format_name.lower()
     if format_name == "json":
         return JSONSerializer()
     elif format_name == "toml":
