@@ -1,5 +1,4 @@
 import re
-import json
 
 FLOAT_REGEX = "-?\d+\.\d+"
 INT_REGEX = "\d+"
@@ -16,7 +15,7 @@ def to_json(obj):
     elif isinstance(obj, (int, float)):
         return str(obj)
     elif isinstance(obj, str):
-        return "\"" + obj.replace('\\', '\\\\').replace('\n', '\\n').replace('/', '\\/') + "\""
+        return "\"" + obj.replace('\\', '\\\\').replace('\n', '\\n') + "\""
     elif isinstance(obj, list):
         return f"[{','.join(to_json(o) for o in obj)}]"
     elif isinstance(obj, dict):
@@ -44,7 +43,7 @@ def from_json(s):
     elif re.fullmatch(LIST_REGEX, s):
         return [from_json(ss) for ss in split(re.fullmatch(LIST_REGEX, s).group(1), ',')]
     elif re.fullmatch(STR_REGEX, s):
-        return re.fullmatch(STR_REGEX, s).group(1).replace('\\n', '\n').replace('\\\\', '\\').replace('\\/', '/')
+        return re.fullmatch(STR_REGEX, s).group(1).replace('\\n', '\n').replace('\\\\', '\\')
     else:
         raise ValueError(f"Wrong string \"{s}\"")
 
