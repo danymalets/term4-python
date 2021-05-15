@@ -15,3 +15,5 @@ def create_serializer(format_name):
         return YAMLSerializer()
     elif format_name == "pickle":
         return PICKLESerializer()
+    else:
+        raise ValueError(f"Wrong format {format_name}")
