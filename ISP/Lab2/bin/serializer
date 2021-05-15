@@ -41,13 +41,33 @@ def get_dir(path):
 
 
 def file_to_obj(file_path, format_name):
-    ser = create_serializer(format_name)
-    return ser.load(file_path)
+    try:
+        ser = create_serializer(format_name)
+    except ValueError:
+        logging.error("Wrong input format")
+        return
+
+    try:
+        return ser.load(file_path)
+    except OSError:
+        logging.error("File access error")
+    except ValueError:
+        logging.error("Content error")
 
 
 def obj_to_file(obj, file_path, format_name):
-    ser = create_serializer(format_name)
-    return ser.dump(obj, file_path)
+    try:
+        ser = create_serializer(format_name)
+    except ValueError:
+        logging.error("Wrong input format")
+        return
+
+    try:
+        return ser.dump(obj, file_path)
+    except OSError:
+        logging.error("File access error")
+    except ValueError:
+        logging.error("Conversion error")
 
 
 def make_conversion(source_path, target_format, target_path):
@@ -55,13 +75,9 @@ def make_conversion(source_path, target_format, target_path):
         target_path = f"{get_dir(source_path)}{DEFAULT_FILE_NAME}.{target_format.lower()}"
     source_format = get_extension(source_path)
 
-    logging.info(f"Starting of conversion.\n Converting {args.source_path} ({source_format}) "
-                 f"file to {args.target_path} ({target_format}) file")
-
     obj = file_to_obj(source_path, source_format)
-    obj_to_file(obj, target_path, target_format)
-
-    logging.info("Ending of conversion.")
+    if obj is not None:
+        obj_to_file(obj, target_path, target_format)
 
 
 args = arg_parser.parse_args()
