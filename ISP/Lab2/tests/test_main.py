@@ -78,9 +78,10 @@ def test_toml():
 
 def test_yaml_file():
     ser = create_serializer("yaml")
-    a = {"a": 1, "b": 2.2, "c": False, "d": True, "e": None, "f1": [1, 2, 3]}
+    a = {"a": 1, "b": 2.2, "c": False, "d": True, "e": None, "f1": [1, 2, 3, [], {}]}
     ser.dump(a, YAML_DICT)
     b = ser.load(YAML_DICT)
+    print(b)
     assert a == b
 
 
