@@ -14,7 +14,7 @@ FUNCTION_ATTRS_NAMES = [
     "__closure__",
 ]
 
-CODE_OBJECT_ARGS = (
+CODE_OBJECT_ARGS = [
     'co_argcount',
     'co_posonlyargcount',
     'co_kwonlyargcount',
@@ -31,7 +31,7 @@ CODE_OBJECT_ARGS = (
     'co_lnotab',
     'co_freevars',
     'co_cellvars'
-)
+]
 
 
 def serialize(obj):
@@ -78,9 +78,7 @@ def serialize(obj):
 
 def serialize_function(f: object):
     result = {}
-    print(inspect.getmembers(f))
     for detail in inspect.getmembers(f):
-        print(detail)
         if inspect.isbuiltin(detail[1]):
             continue
         if detail[0] in FUNCTION_ATTRS_NAMES:
@@ -107,12 +105,17 @@ def deserialize(obj):
 
     if tp == dict:
         if VALUE in obj and TYPE in obj:
-            if obj[TYPE] == "tuple":
+            if obj[TYPE] == "list":
+                result = []
+                for o in obj[VALUE]:
+                    result.append(deserialize(o))
+                return result
+            elif obj[TYPE] == "tuple":
                 result = []
                 for o in obj[VALUE]:
                     result.append(deserialize(o))
                 return tuple(result)
-            if obj[TYPE] == "dict":
+            elif obj[TYPE] == "dict":
                 for pr in obj[VALUE]:
                     result[deserialize(pr[0])] = deserialize(pr[1])
                 return result
@@ -158,13 +161,11 @@ def deserialize_function(f: dict):
 
 
 def serialize_inst(inst: object):
-    result = {}
-    attrs = inspect.getmembers(inst)
-    for attr in attrs:
-        if callable(attr[1]):
-            continue
-        result[attr[0]] = serialize(attr[1])
-    return result
+    res = {}
+    for attr in inspect.getmembers(inst):
+        if not callable(attr[1]):
+            res[attr[0]] = serialize(attr[1])
+    return res
 
 
 def serialize_class(cls):
@@ -173,21 +174,21 @@ def serialize_class(cls):
         if i.__name__ != "object":
             bases += (serialize_class(i),)
     args = serialize(dict(cls.__dict__))
-    return {"**name**": cls.__name__, "**bases**": serialize(bases), "**content**": args}
+    return {"name": cls.__name__, "bases": serialize(bases), "content": args}
 
 
 def deserialize_class(cls):
-    return type(deserialize(cls["**name**"]), deserialize(cls["**bases**"]), deserialize(cls["**content**"]))
+    return type(deserialize(cls["name"]), deserialize(cls["bases"]), deserialize(cls["content"]))
 
 
 def serialize_class_obj(obj):
     return {
-        "**class**": serialize_class(obj.__class__),
-        "**vars**": serialize(obj.__dict__)
+        "class": serialize_class(obj.__class__),
+        "vars": serialize(obj.__dict__)
     }
 
 
 def deserialize_class_obj(obj):
-    res = deserialize_class(obj["**class**"])()
-    res.__dict__ = deserialize(obj["**vars**"])
+    res = deserialize_class(obj["class"])()
+    res.__dict__ = deserialize(obj["vars"])
     return res
