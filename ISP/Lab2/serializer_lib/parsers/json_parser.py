@@ -57,23 +57,19 @@ def split(s, mark):
     for i in range(len(s)):
         if is_quotation(s, i):
             in_str = not in_str
-
         if not in_str:
             if s[i] == '[' or s[i] == '{':
                 depth += 1
             elif s[i] == ']' or s[i] == '}':
                 depth -= 1
-
         if s[i] == mark and depth == 0 and not in_str:
             a.append(tmp)
             tmp = ""
             marks += 1
         else:
             tmp += s[i]
-
     if tmp.strip("\n ") != "":
         a.append(tmp)
-
     return a
 
 
