@@ -55,7 +55,7 @@ def split(s, mark):
     in_str = False
     marks = 0
     for i in range(len(s)):
-        if s[i] == '\"' and (i == 0 or s[i - 1] != '\\'):
+        if is_quotation(s, i):
             in_str = not in_str
 
         if not in_str:
@@ -75,3 +75,14 @@ def split(s, mark):
         a.append(tmp)
 
     return a
+
+
+def is_quotation(s, ind):
+    if s[ind] != "\"":
+        return False
+    ind -= 1
+    cnt = 0
+    while ind >= 0 and s[ind] == "\\":
+        ind -= 1
+        cnt += 1
+    return cnt % 2 == 0

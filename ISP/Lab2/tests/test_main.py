@@ -108,4 +108,9 @@ def test_obj():
     assert a.sqr(5) == b.sqr(5)
 
 
-
+def test_complex_dict():
+    ser = create_serializer("json")
+    a = {"a": 1, "b": 2.2, 3: 9, False: True}
+    s = ser.dumps(a)
+    b = ser.loads(s)
+    assert a == b

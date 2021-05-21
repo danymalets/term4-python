@@ -1,0 +1,46 @@
+{
+  "json": [
+    "rigid",
+    "better for data interchange"
+  ],
+  "yaml": [
+    "slim and flexible",
+    "better for configuration"
+  ],
+  "object": {
+    "key": "value",
+    "array": [
+      {
+        "null_value": null
+      },
+      {
+        "boolean": true
+      },
+      {
+        "integer": 1
+      },
+      {
+        "alias": "aliases are like variables"
+      },
+      {
+        "alias": "aliases are like variables",
+        "a": [
+          1,
+          2,
+          {
+            "123": 123
+          }
+        ],
+        "b": [
+          1,
+          2,
+          {
+            "123": 123,
+            "1234": 123,
+            "1235": 123
+          }
+        ]
+      }
+    ]
+  }
+}

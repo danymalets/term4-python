@@ -14,8 +14,6 @@ FUNCTION_ATTRS_NAMES = [
     "__closure__",
 ]
 
-GLOBALS_NAMES = 'co_names'
-
 CODE_OBJECT_ARGS = (
     'co_argcount',
     'co_posonlyargcount',
@@ -40,11 +38,21 @@ def serialize(obj):
     result = {}
     tp = type(obj)
     tp_name = tp.__name__
-    if isinstance(obj, (int, float, complex, bool, str)) or obj is None:
+    if obj is None or isinstance(obj, (int, float, complex, bool, str)):
         return obj
     elif tp == dict:
-        for name, o in obj.items():
-            result[name] = serialize(o)
+        allStr = True
+        for key, val in obj.items():
+            if not isinstance(key, str):
+                allStr = False
+        if allStr:
+            for key, val in obj.items():
+                result[key] = serialize(val)
+        else:
+            result[TYPE] = tp_name
+            result[VALUE] = []
+            for key, val in obj.items():
+                result[VALUE].append([serialize(key), serialize(val)])
     elif tp == list or tp == tuple:
         result[TYPE] = tp_name
         result[VALUE] = []
@@ -70,8 +78,9 @@ def serialize(obj):
 
 def serialize_function(f: object):
     result = {}
-    details = inspect.getmembers(f)
-    for detail in details:
+    print(inspect.getmembers(f))
+    for detail in inspect.getmembers(f):
+        print(detail)
         if inspect.isbuiltin(detail[1]):
             continue
         if detail[0] in FUNCTION_ATTRS_NAMES:
@@ -79,7 +88,7 @@ def serialize_function(f: object):
             if detail[0] == CODE_FIELD_NAME:
                 result[GLOBAL_FIELD_NAME] = {}
                 glob = f.__getattribute__(GLOBAL_FIELD_NAME)
-                for name in detail[1].__getattribute__(GLOBALS_NAMES):
+                for name in detail[1].__getattribute__('co_names'):
                     if name == f.__name__:
                         result[GLOBAL_FIELD_NAME][name] = f.__name__
                         continue
@@ -89,16 +98,6 @@ def serialize_function(f: object):
                         if inspect.ismodule(glob[name]):
                             continue
                         result[GLOBAL_FIELD_NAME][name] = serialize(glob[name])
-    return result
-
-
-def serialize_inst(inst: object):
-    result = {}
-    attrs = inspect.getmembers(inst)
-    for attr in attrs:
-        if callable(attr[1]):
-            continue
-        result[attr[0]] = serialize(attr[1])
     return result
 
 
@@ -113,13 +112,17 @@ def deserialize(obj):
                 for o in obj[VALUE]:
                     result.append(deserialize(o))
                 return tuple(result)
-            elif obj[TYPE] == "function":
+            if obj[TYPE] == "dict":
+                for pr in obj[VALUE]:
+                    result[deserialize(pr[0])] = deserialize(pr[1])
+                return result
+            elif obj[TYPE] == 'function':
                 return deserialize_function(obj[VALUE])
-            elif obj[TYPE] == "bytes":
+            elif obj[TYPE] == 'bytes':
                 return bytes(obj[VALUE])
-            elif obj[TYPE] == "type":
+            elif obj[TYPE] == 'type':
                 return deserialize_class(obj[VALUE])
-            elif obj[TYPE] == "class_object":
+            elif obj[TYPE] == 'class_object':
                 return deserialize_class_obj(obj[VALUE])
             return obj[VALUE]
         for name, o in obj.items():
@@ -139,7 +142,7 @@ def deserialize_function(f: dict):
         else:
             code_args.append(arg)
     details = [CodeType(*code_args)]
-    glob = {"__builtins__": __builtins__}
+    glob = {'__builtins__': __builtins__}
     for name, o in f[GLOBAL_FIELD_NAME].items():
         glob[name] = deserialize(o)
     details.append(glob)
@@ -152,6 +155,16 @@ def deserialize_function(f: dict):
     if result_func.__name__ in result_func.__getattribute__(GLOBAL_FIELD_NAME):
         result_func.__getattribute__(GLOBAL_FIELD_NAME)[result_func.__name__] = result_func
     return result_func
+
+
+def serialize_inst(inst: object):
+    result = {}
+    attrs = inspect.getmembers(inst)
+    for attr in attrs:
+        if callable(attr[1]):
+            continue
+        result[attr[0]] = serialize(attr[1])
+    return result
 
 
 def serialize_class(cls):

@@ -1,2 +1,28 @@
-a: 1
-b: 2
+'json': '**type**': 'list'
+  '**value**': 
+    - 'rigid'
+    - 'better for data interchange'
+'yaml': '**type**': 'list'
+  '**value**': 
+    - 'slim and flexible'
+    - 'better for configuration'
+'object': 'key': 'value'
+  'array': '**type**': 'list'
+    '**value**': 
+      - 'null_value': 
+      - 'boolean': true
+      - 'integer': 1
+      - 'alias': 'aliases are like variables'
+      - 'alias': 'aliases are like variables'
+        'a': '**type**': 'list'
+          '**value**': 
+            - 1
+            - 2
+            - '123': 123
+        'b': '**type**': 'list'
+          '**value**': 
+            - 1
+            - 2
+            - '123': 123
+              '1234': 123
+              '1235': 123
